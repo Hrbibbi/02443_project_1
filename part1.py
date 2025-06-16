@@ -134,7 +134,7 @@ def task2_pval(P):
     
     p_t = np.linalg.matrix_power(P, n=t)[0] # true distribution
     
-    rep = 20
+    rep = 100
     pvals = np.zeros(rep)
     for i in tqdm(range(rep)):
         time_until_death,freq_at_t = sim()
@@ -143,9 +143,64 @@ def task2_pval(P):
     
     plt.hist(pvals)
     plt.title('Task 2: Histogram over chi2 p-values')
+    plt.savefig("pvalue_histogram.pdf")
     plt.show()
     
-    
+def task3_pval(P):
+    pvals=[]
+    num_iter=100
+    for i in range(num_iter):
+        print(i)
+        N_states = len(P)
+        N_sim = 1000
+        states = np.arange(N_states)
+        time_until_death = np.zeros(N_sim)
+        death_state = N_states-1
+        p_state2_hit = 0
+        t = 120 # time at which to perform a check of distribution
+        freq_at_t = np.zeros(N_states)
+        for i in range(N_sim):
+            state = 0
+            time = 0
+            state2_hit = False
+            state_at_t = N_states-1 # always ends up in the last state
+            while state != death_state:
+                time += 1
+                state = np.random.choice(states, p=P[state])
+                
+                if state == 1:
+                    state2_hit = True
+                if time == t:
+                    state_at_t = state
+                
+            freq_at_t[state_at_t] += 1
+            p_state2_hit += int(state2_hit)
+            time_until_death[i] = time
+        t_max = time_until_death.max()
+        pi = np.array([1,0,0,0])
+        P_s = P[:N_states-1,:N_states-1]
+        p_s = P[:N_states-1,-1]
+        
+        p_T = np.zeros(int(t_max))
+        term = pi
+        for i in range(1,len(p_T)):
+            term = term @ P_s
+            p_T[i] = term @ p_s
+            
+        E_T = np.sum(pi @ np.linalg.inv(np.eye(len(P_s)) - P_s))
+        cdf_T = np.cumsum(p_T)
+
+        # Define analytical CDF function
+        x_vals = np.arange(len(cdf_T))
+        def analytical_cdf(x):
+            return np.interp(x, x_vals, cdf_T, left=0.0, right=1.0)
+
+        # Perform one-sample K-S test
+        ks_stat, ks_p = sps.kstest(rvs=time_until_death, cdf=analytical_cdf)
+        pvals.append(ks_p)
+    plt.hist(pvals)
+    plt.savefig("ks_histogram.pdf")
+    plt.show()
 #%% Task 4
 def task4(P):
     """
@@ -273,8 +328,10 @@ def task5(P):
 
 
 if __name__ == '__main__':
-    # task1to3(P)
-    # task2_pval(P)
+    np.random.seed(42)
+    #task1to3(P)
+    #task2_pval(P)
+    task3_pval(P)
     # task4(P)
     # task5(P)
     pass

@@ -9,7 +9,7 @@ P = np.array([
     [0,      0.986,  0.005,  0.004, 0.005],
     [0,      0,      0.992,  0.003, 0.005],
     [0,      0,      0,      0.991, 0.009],
-    [0,      0,      0,      0,     1]
+    [0,      0,      0,      0,     1    ]
 ])
 
 #%% Task 1-3
@@ -42,16 +42,16 @@ def task1to3(P):
     
     
     print('\n=== TASK 1\n')
-    
     plt.figure(figsize=(10, 6))
     plt.hist(time_until_death, bins=30, edgecolor='black', alpha=0.75)
-    plt.title("Task 1: Histogram of lifetime distribution after surgery", fontsize=14)
+    plt.title("Histogram of lifetime distribution after surgery", fontsize=14)
     plt.xlabel("Months", fontsize=12)
     plt.ylabel("Number of patients", fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.tight_layout()
+    plt.savefig("lifetime_histogram.pdf")
     plt.show()
-    
+    print(np.mean(time_until_death),np.std(time_until_death))
     p_state2_hit /= N_sim
     print(f'p_state2_hit={p_state2_hit}')
     
@@ -80,12 +80,13 @@ def task1to3(P):
         
     E_T = np.sum(pi @ np.linalg.inv(np.eye(len(P_s)) - P_s))
     
-    plt.hist(time_until_death, bins=30, edgecolor='black', alpha=0.75, density=True, label='Empirical PMF')
+    plt.hist(time_until_death, bins=40, edgecolor='black', alpha=0.75, density=True, label='Empirical PMF')
     plt.plot(p_T, label='Analytical PMF')
     plt.xlabel('Months')
     plt.grid(True)
     plt.title('Task 3: Lifetime distribution')
     plt.legend()
+    plt.savefig("lifetime_vs_analytic.pdf")
     plt.show()
     
     ### kstest

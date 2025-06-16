@@ -88,9 +88,63 @@ def task1to3(P):
     plt.legend()
     plt.show()
     
+    ### kstest
+    cdf_T = np.cumsum(p_T)
+
+    # Define analytical CDF function
+    x_vals = np.arange(len(cdf_T))
+    def analytical_cdf(x):
+        return np.interp(x, x_vals, cdf_T, left=0.0, right=1.0)
+
+    # Perform one-sample K-S test
+    ks_stat, ks_p = sps.kstest(rvs=time_until_death, cdf=analytical_cdf)
+
+    print(f"KS test statistic: {ks_stat:.4f}")
+    print(f"KS test p-value: {ks_p:.4f}")
+    ###
+    
     print(f'Empirical lifetime mean: {time_until_death.mean()}')
     print(f'Analytical lifetime mean: {E_T}')
 
+def task2_pval(P):
+    N_states = len(P)
+    N_sim = 1000
+    states = np.arange(N_states)
+    t = 120 # time at which to perform a check of distribution
+    
+    def sim():
+        time_until_death = np.zeros(N_sim)
+        death_state = N_states-1
+        freq_at_t = np.zeros(N_states)
+        for i in range(N_sim):
+            state = 0
+            time = 0
+            state_at_t = N_states-1 # always ends up in the last state
+            while state != death_state:
+                time += 1
+                state = np.random.choice(states, p=P[state])
+                
+                if time == t:
+                    state_at_t = state
+                
+            freq_at_t[state_at_t] += 1
+            time_until_death[i] = time
+        return time_until_death,freq_at_t
+    
+    p_t = np.linalg.matrix_power(P, n=t)[0] # true distribution
+    
+    rep = 20
+    pvals = np.zeros(rep)
+    for i in tqdm(range(rep)):
+        time_until_death,freq_at_t = sim()
+        chi2_stat,chi2_pval = sps.chisquare(f_obs=freq_at_t, f_exp=N_sim*p_t)
+        pvals[i] = chi2_pval
+    
+    plt.hist(pvals)
+    plt.title('Task 2: Histogram over chi2 p-values')
+    plt.show()
+    
+    
 #%% Task 4
 def task4(P):
     """
@@ -219,5 +273,7 @@ def task5(P):
 
 if __name__ == '__main__':
     # task1to3(P)
+    # task2_pval(P)
     # task4(P)
-    task5(P)
+    # task5(P)
+    pass

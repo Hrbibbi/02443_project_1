@@ -199,6 +199,7 @@ def task3_pval(P):
         ks_stat, ks_p = sps.kstest(rvs=time_until_death, cdf=analytical_cdf)
         pvals.append(ks_p)
     plt.hist(pvals)
+    plt.title('Histogram over KS p-values')
     plt.savefig("ks_histogram.pdf")
     plt.show()
 #%% Task 4

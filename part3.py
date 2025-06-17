@@ -138,7 +138,7 @@ def task13(Q):
     while diff > eps:
         ###
         # Step 1: simulate trajectories
-        trajectories = simulate_trajectories(Q,Y_list)
+        trajectories = simulate_trajectories(Qk,Y_list)
         
         # Step 2: calculate N_ij and S_i
         N_ij = np.zeros((N_states,N_states))
